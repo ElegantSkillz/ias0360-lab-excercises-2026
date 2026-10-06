@@ -34,6 +34,7 @@ add_executable(${PROGRAM_NAME}
     sensor.c
     storage.c
     config/hw_config.c
+    stats.c
 )
 
 target_compile_definitions(${PROGRAM_NAME} PRIVATE
