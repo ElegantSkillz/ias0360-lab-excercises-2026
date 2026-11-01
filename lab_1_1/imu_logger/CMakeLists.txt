@@ -35,6 +35,7 @@ add_executable(${PROGRAM_NAME}
     storage.c
     config/hw_config.c
     stats.c
+    features.c
 )
 
 target_compile_definitions(${PROGRAM_NAME} PRIVATE
@@ -56,6 +57,8 @@ target_link_libraries(${PROGRAM_NAME}
     hardware_i2c
     pico_stdlib
     sd_custom_driver
+    pico_multicore
+    pico_cyw43_arch_none
 )
 
 pico_add_extra_outputs(${PROGRAM_NAME})

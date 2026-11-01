@@ -39,8 +39,11 @@ void buffer_init(void){
             return 1;
         }
     }
-
+uint32_t buffer_level(void){
+    return queue_get_level(&sample_queue);
+}
 // TODO 5: buffer_overflow_count - return the counter.
 uint32_t buffer_overflow_count(void){
     return overflow_count;
 }
+

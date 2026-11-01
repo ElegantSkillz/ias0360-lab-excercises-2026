@@ -5,6 +5,9 @@
 #include "pico/multicore.h"     // only used by main_4
 #include "pico/util/queue.h"    // only used by main_4
 
+#define REG_ADD_INT_STATUS
+#define REG_VAL_RAW_DATA_0_RDY_INT
+
 int main_1(void)
 {
     stdio_init_all();
@@ -42,7 +45,7 @@ int main_1(void)
     return 0;
 }
 
-int main_2(void)
+int main__2(void)
 {
     stdio_init_all();
 
@@ -158,40 +161,20 @@ static void core1_reader(void)
     }
 }
 
-int main_4(void)
-{
+int main() {
     stdio_init_all();
+    sleep_ms(2000); 
 
-    IMU_EN_SENSOR_TYPE type;
-    imuInit(&type);
+    IMU_EN_SENSOR_TYPE sensorType;
+    
+    imuInit(&sensorType);
 
-    if (IMU_EN_SENSOR_TYPE_ICM20948 == type) {
-        printf("Motion sensor is ICM-20948 (multicore)\n");
-    } else {
-        printf("Motion sensor NULL\n");
+    char LocalReg = I2C_ReadOneByte(REG_ADD_WIA);
+    printf("This is the value of LocalReg: %02X.", LocalReg);
+    printf("This is the value of REG_VAL_WIA: %02X.", REG_VAL_WIA);
+
+
+    while (true) {
+        tight_loop_contents();
     }
-
-    // Queue can hold up to N samples; adjust for your bandwidth
-    queue_init(&sample_q, sizeof(Sample), 64);
-
-    // Launch core1 reader
-    multicore_launch_core1(core1_reader);
-
-    uint32_t t_prev = (uint32_t)time_us_64();
-
-    while (1) {
-        Sample s;
-        queue_remove_blocking(&sample_q, &s);
-
-        uint32_t t_now = (uint32_t)time_us_64();
-        uint32_t dt_us = (t_now - t_prev);
-        t_prev = t_now;
-        float hz = (dt_us > 0) ? (1000000.0f / (float)dt_us) : 0.0f;
-
-        printf("ACC: X=%d Y=%d Z=%d | GYRO: X=%d Y=%d Z=%d | RX Rate: %.1f Hz\r\n",
-               s.ax, s.ay, s.az, s.gx, s.gy, s.gz, hz);
-        // No sleep: printing rate is now bounded mostly by USB/serial throughput.
-    }
-
-    return 0;
-}
+} 
